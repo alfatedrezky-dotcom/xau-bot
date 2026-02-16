@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XAU/USD AI Signal - Private Access</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; transition: background 0.5s; color: white; text-align: center; background-color: #1a1a1a; }
+        
+        /* Style untuk Form Login */
+        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a1a1a; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .login-box { background: #2c3e50; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        input { padding: 12px; border-radius: 5px; border: none; margin-bottom: 15px; width: 200px; text-align: center; font-size: 1rem; }
+        button { padding: 10px 25px; border-radius: 5px; border: none; background: #27ae60; color: white; cursor: pointer; font-weight: bold; }
+        
+        /* Style untuk Konten Utama */
+        #main-content { display: none; }
+        .card { background: rgba(0,0,0,0.7); padding: 30px; border-radius: 25px; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); width: 85%; max-width: 400px; }
+        .price { font-size: 3.5rem; font-weight: bold; margin: 15px 0; letter-spacing: -1px; }
+        .signal { font-size: 1.8rem; font-weight: 900; padding: 15px; border-radius: 12px; text-transform: uppercase; background: rgba(255,255,255,0.1); }
+        .info { margin-top: 20px; font-size: 0.9rem; opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2>PRIVATE ACCESS</h2>
+            <p>Masukkan Password</p>
+            <input type="password" id="pass-input" placeholder="******"><br>
+            <button onclick="checkPass()">ENTER</button>
+            <p id="error-msg" style="color: #e74c3c; display: none; margin-top: 10px;">Password Salah!</p>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <div class="card">
+            <h3 style="margin: 0; opacity: 0.6;">XAU/USD LIVE AI</h3>
+            <div id="price" class="price">--.--</div>
+            <div id="signal" class="signal">SCANNING...</div>
+            <div class="info">AI Accuracy Score: <span id="score">0</span>%</div>
+            <div style="font-size: 0.7rem; margin-top: 15px; opacity: 0.4;">Status: Live from Termux</div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Fungsi Password
+        function checkPass() {
+            const pass = document.getElementById('pass-input').value;
+            if (pass === "300308") {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                initFirebase(); // Jalankan Firebase setelah login sukses
+            } else {
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        }
+
+        // 2. Konfigurasi Firebase (Sesuaikan dengan data kamu)
+        function initFirebase() {
+            const firebaseConfig = {
+                apiKey: "223c07c7cddc4de385028d1b4b3f955f", // Ambil dari Project Settings Firebase
+                authDomain: "xau-bot-b261d.firebaseapp.com",
+                databaseURL: "https://xau-bot-b261d-default-rtdb.firebaseio.com",
+                projectId: "xau-bot-b261d",
+                storageBucket: "xau-bot-b261d.appspot.com"
+            };
+
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
+
+            // Mendengarkan data xau_signal
+            db.ref('xau_signal').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    document.getElementById('price').innerText = "$" + data.price;
+                    document.getElementById('signal').innerText = data.signal;
+                    document.getElementById('score').innerText = data.score;
+
+                    // Logika warna berdasarkan signal
+                    if (data.signal.includes("BUY")) {
+                        document.body.style.backgroundColor = "#1e8449"; // Hijau
+                    } else if (data.signal.includes("SELL")) {
+                        document.body.style.backgroundColor = "#922b21"; // Merah
+                    } else {
+                        document.body.style.backgroundColor = "#2c3e50"; // Default
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
